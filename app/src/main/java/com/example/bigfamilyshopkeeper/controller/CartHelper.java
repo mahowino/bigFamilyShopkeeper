@@ -4,11 +4,13 @@ import com.example.bigfamilyshopkeeper.models.Cart;
 import com.example.bigfamilyshopkeeper.models.GoodType;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class CartHelper {
      Cart cart;
-    private double RATE=0.05;
+    private double RATE=0.05,priceToTopUp;
+    int wholesalePacksToBeBrought,goodsToAdd;
 
     public CartHelper(Cart cart){
         this.cart =cart;
@@ -41,19 +43,60 @@ public class CartHelper {
 
         cart.setCartGoods(goodsAlreadyInCart);
     }
-    public  double calculateCartValue(){
-        double price=0.00;
+    private void calculateValues(){
+        //get the modulus of the
+        priceToTopUp=0.00;
+        wholesalePacksToBeBrought=0;
+        goodsToAdd=0;
+
         List<GoodType> goodsInCart=cart.getCartGoods();
+        wholesalePacksToBeBrought+=goodsInCart.size();
+
         for (GoodType goodType:goodsInCart){
-            price+=goodType.getGoodRetailPrice()*goodType.getNumberInCart();
+            BigDecimal dividend = new BigDecimal(goodType.getNumberInCart());
+            BigDecimal divisor = new BigDecimal(goodType.getWholesaleQuantities());
+
+            BigDecimal[] quotientAndRemainder = dividend.divideAndRemainder(divisor);
+            BigDecimal quotient = quotientAndRemainder[0];
+            BigDecimal remainder = quotientAndRemainder[1];
+            wholesalePacksToBeBrought+=quotient.intValue();
+            int wholesalePacks=(goodType.getWholesaleQuantities()-remainder.intValue());
+            goodsToAdd+=wholesalePacks;
+            priceToTopUp+=wholesalePacks*goodType.getGoodWholesalePrice();
         }
-        return price;
+
+    }
+    public  double getGoodsToAdd(){
+        calculateValues();
+        return goodsToAdd;
     }
 
-    public double getServiceCharge(){
-        return calculateCartValue()*RATE;
+    public double getWholesaleGoodsToBeBrought(){
+        return wholesalePacksToBeBrought;
     }
     public double getTotalCharge(){
-        return getServiceCharge()+calculateCartValue();
+        calculateValues();
+        return priceToTopUp;
+    }
+
+    public int getBulksForSpecificProduct(GoodType good) {
+        BigDecimal dividend = new BigDecimal(good.getNumberInCart());
+        BigDecimal divisor = new BigDecimal(good.getWholesaleQuantities());
+
+        BigDecimal[] quotientAndRemainder = dividend.divideAndRemainder(divisor);
+        BigDecimal quotient = quotientAndRemainder[0];
+
+        return quotient.intValue()+1;
+    }
+    public double getRemainingAmountForNextBulk(GoodType good) {
+        BigDecimal dividend = new BigDecimal(good.getNumberInCart());
+        BigDecimal divisor = new BigDecimal(good.getWholesaleQuantities());
+
+        BigDecimal[] quotientAndRemainder = dividend.divideAndRemainder(divisor);
+        BigDecimal quotient = quotientAndRemainder[0];
+        BigDecimal remainder = quotientAndRemainder[1];
+        wholesalePacksToBeBrought+=quotient.intValue();
+
+        return (good.getWholesaleQuantities()-remainder.intValue())+1;
     }
 }

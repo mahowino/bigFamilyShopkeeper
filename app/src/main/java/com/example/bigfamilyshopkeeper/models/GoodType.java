@@ -5,8 +5,34 @@ import android.os.Parcelable;
 
 public class GoodType extends Goods implements Parcelable {
     String GoodTypeId,good_variant_name,good_description;
+    int wholesaleQuantities;
     double retail_price,wholesale_price;
-    int numberInCart;
+    int numberInCart,maxNumberInCart,bulkQuantitiesInCart;
+
+    public int getBulkQuantitiesInCart() {
+        return bulkQuantitiesInCart;
+    }
+
+    public void setBulkQuantitiesInCart(int bulkQuantitiesInCart) {
+        this.bulkQuantitiesInCart = bulkQuantitiesInCart;
+    }
+
+    public int getNumberToBulk() {
+        return maxNumberInCart;
+    }
+
+    public void setNumberToBulk(int maxNumberInCart) {
+        this.maxNumberInCart = maxNumberInCart;
+    }
+
+    public int getWholesaleQuantities() {
+        return wholesaleQuantities;
+    }
+
+    public void setWholesaleQuantities(int wholesaleQuantities) {
+        this.wholesaleQuantities = wholesaleQuantities;
+    }
+
     public GoodType(){}
     protected GoodType(Parcel in) {
         GoodTypeId = in.readString();
@@ -14,7 +40,10 @@ public class GoodType extends Goods implements Parcelable {
         good_description = in.readString();
         retail_price = in.readDouble();
         wholesale_price = in.readDouble();
+        wholesaleQuantities = in.readInt();
         numberInCart = in.readInt();
+        maxNumberInCart=in.readInt();
+        bulkQuantitiesInCart=in.readInt();
     }
 
     public static final Creator<GoodType> CREATOR = new Creator<GoodType>() {
@@ -89,6 +118,9 @@ public class GoodType extends Goods implements Parcelable {
         parcel.writeString(good_description);
         parcel.writeDouble(retail_price);
         parcel.writeDouble(wholesale_price);
+        parcel.writeInt(wholesaleQuantities);
         parcel.writeInt(numberInCart);
+        parcel.writeInt(maxNumberInCart);
+        parcel.writeInt(bulkQuantitiesInCart);
     }
 }

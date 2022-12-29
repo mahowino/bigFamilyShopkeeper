@@ -20,15 +20,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     Context mContext;
     Cart cart;
     CartHelper cartHelper;
-    TextView goodsCost,service,total;
+    TextView goodsToAdd,wholesale,bulk;
 
 
-    public CartAdapter(Context mContext, Cart cart, TextView goodsCost, TextView service, TextView total) {
+    public CartAdapter(Context mContext, Cart cart, TextView goodsToAdd, TextView wholesale, TextView bulk) {
         this.mContext = mContext;
         this.cart = cart;
-        this.goodsCost=goodsCost;
-        this.service=service;
-        this.total=total;
+        this.goodsToAdd=goodsToAdd;
+        this.wholesale=wholesale;
+        this.bulk=bulk;
         cartHelper=new CartHelper(cart);
     }
 
@@ -41,43 +41,62 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        GoodType good=cart.getCartGoods().get(position);
 
+        GoodType good=cart.getCartGoods().get(position);
         holder.productNumber.setText(String.valueOf(good.getNumberInCart()));
         holder.productName.setText(good.getGoodVariantName());
         holder.productDescription.setText(good.getGoodVariantDescription());
-        holder.add.setOnClickListener(view -> addNumberOfGoodInCart(position,holder));
-        holder.subtract.setOnClickListener(view -> subtractNumberOfGoodInCart(position,holder));
 
-        goodsCost.setText(String.valueOf(cartHelper.calculateCartValue()));
-        service.setText(String.valueOf(cartHelper.getServiceCharge()));
-        total.setText(String.valueOf(cartHelper.getTotalCharge()));
+        holder.add.setOnClickListener(view -> addNumberOfGoodInCart(good,holder));
+        holder.subtract.setOnClickListener(view -> subtractNumberOfGoodInCart(good,holder));
+        good.setBulkQuantitiesInCart(cartHelper.getBulksForSpecificProduct(good));
+
+        holder.productBulkQuantites.setText("Bulk goods to get: "+cartHelper.getBulksForSpecificProduct(good));
+        goodsToAdd.setText(String.valueOf(cartHelper.getGoodsToAdd()));
+        wholesale.setText(String.valueOf(cartHelper.getWholesaleGoodsToBeBrought()));
+        bulk.setText(String.valueOf(cartHelper.getTotalCharge()));
+
+        holder.add.setVisibility(View.INVISIBLE);
 
 
     }
 
-    private void addNumberOfGoodInCart(int pos, ViewHolder holder) {
-        cartHelper.addNumberOfGoodsInCart(cart.getCartGoods().get(pos));
-        holder.productNumber.setText(String.valueOf(cart.getCartGoods().get(pos).getNumberInCart()));
+    private void addNumberOfGoodInCart(GoodType good, ViewHolder holder) {
+        cartHelper.addNumberOfGoodsInCart(good);
 
-        goodsCost.setText(String.valueOf(cartHelper.calculateCartValue()));
-        service.setText(String.valueOf(cartHelper.getServiceCharge()));
-        total.setText(String.valueOf(cartHelper.getTotalCharge()));
+
+        holder.productNumber.setText(String.valueOf(good.getNumberInCart()));
+        good.setBulkQuantitiesInCart(cartHelper.getBulksForSpecificProduct(good));
+        holder.productBulkQuantites.setText("Bulk goods to get: "+cartHelper.getBulksForSpecificProduct(good));
+        goodsToAdd.setText(String.valueOf(cartHelper.getGoodsToAdd()));
+        wholesale.setText(String.valueOf(cartHelper.getWholesaleGoodsToBeBrought()));
+        bulk.setText(String.valueOf(cartHelper.getTotalCharge()));
+
+        if (good.getNumberInCart()>=good.getNumberToBulk())
+            holder.add.setVisibility(View.INVISIBLE);
+        else  holder.add.setVisibility(View.VISIBLE);
+
     }
 
 
-    private void subtractNumberOfGoodInCart(int pos, ViewHolder holder) {
-        if (cart.getCartGoods().get(pos).getNumberInCart()==1) {
-            cartHelper.removeNumberOfGoodsInCart(cart.getCartGoods().get(pos));
-            notifyItemRemoved(pos);
+    private void subtractNumberOfGoodInCart(GoodType goodType, ViewHolder holder) {
+        if (goodType.getNumberInCart()==1) {
+            cartHelper.removeNumberOfGoodsInCart(goodType);
+            notifyDataSetChanged();
         }
        else {
-            cartHelper.removeNumberOfGoodsInCart(cart.getCartGoods().get(pos));
-            holder.productNumber.setText(String.valueOf(cart.getCartGoods().get(pos).getNumberInCart()));
+            cartHelper.removeNumberOfGoodsInCart(goodType);
+            holder.productNumber.setText(String.valueOf(goodType.getNumberInCart()));
         }
-        goodsCost.setText(String.valueOf(cartHelper.calculateCartValue()));
-        service.setText(String.valueOf(cartHelper.getServiceCharge()));
-        total.setText(String.valueOf(cartHelper.getTotalCharge()));
+        goodType.setBulkQuantitiesInCart(cartHelper.getBulksForSpecificProduct(goodType));
+        holder.productBulkQuantites.setText("Bulk goods to get: "+cartHelper.getBulksForSpecificProduct(goodType));
+        goodsToAdd.setText(String.valueOf(cartHelper.getGoodsToAdd()));
+        wholesale.setText(String.valueOf(cartHelper.getWholesaleGoodsToBeBrought()));
+        bulk.setText(String.valueOf(cartHelper.getTotalCharge()));
+
+        if (goodType.getNumberInCart()>=goodType.getNumberToBulk())
+            holder.add.setVisibility(View.INVISIBLE);
+        else  holder.add.setVisibility(View.VISIBLE);
 
     }
     @Override
@@ -86,7 +105,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView productName,productDescription,productNumber;
+        TextView productName,productDescription,productNumber,productBulkQuantites;
         Button add,subtract;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +114,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             add=itemView.findViewById(R.id.btnIncreaseItemCount);
             subtract=itemView.findViewById(R.id.btnReduceItemCount);
             productNumber=itemView.findViewById(R.id.txtNumberInCart);
+            productBulkQuantites=itemView.findViewById(R.id.txtBulkGoodsToGet);
         }
     }
 }

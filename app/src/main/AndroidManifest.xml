@@ -17,6 +17,17 @@
             android:name=".views.activities.viewGoodsToWithdraw"
             android:exported="false" />
         <activity
+            android:name=".views.activities.payment_success_screen"
+            android:exported="false" />
+        <activity
+            android:name=".views.activities.SendGoodsActivity"
+            android:exported="false" />
+        '<activity
+            android:name=".views.activities.FinalActivitySender"
+            android:exported="false" />
+
+
+        <activity
             android:name=".views.activities.MainPage"
             android:exported="false"
             android:label="@string/title_activity_main_page" />

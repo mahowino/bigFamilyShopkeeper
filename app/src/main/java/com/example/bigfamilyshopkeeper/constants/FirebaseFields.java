@@ -13,4 +13,5 @@ public class FirebaseFields {
     public static final String VOUCHER_CODE ="voucher_code" ;
     public static final String SENDER = "sender";
     public static final String RECEIVER = "receiver";
+    public static final String WHOLESALE_QUANTITIES="wholesale_quantities";
 }

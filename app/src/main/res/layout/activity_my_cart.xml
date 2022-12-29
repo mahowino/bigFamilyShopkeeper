@@ -56,19 +56,19 @@
                 android:id="@+id/textView12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Cash" />
+                android:text="Goods to add" />
 
             <TextView
                 android:id="@+id/textView13"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="service" />
+                android:text="number of wholesale bulks" />
 
             <TextView
                 android:id="@+id/textView14"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Total"
+                android:text="Additional amount to add"
                 android:textColor="@color/black"
                 android:textStyle="bold" />
         </LinearLayout>

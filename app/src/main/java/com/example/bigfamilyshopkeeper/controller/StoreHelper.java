@@ -51,9 +51,12 @@ public class StoreHelper {
                 GoodType goodType = new GoodType();
                 goodType.setGoodTypeId(snapshotDocs.getId());
                 goodType.setNumberInCart(Math.toIntExact(snapshotDocs.getLong(FirebaseFields.NUMBER)));
+                goodType.setNumberToBulk(Math.toIntExact(snapshotDocs.getLong(FirebaseFields.NUMBER)));
                 goodType.setGoodVariantName(snapshotDocs.getString(FirebaseFields.GOOD_VARIANT_NAME));
                 goodType.setGoodVariantDescription(snapshotDocs.getString(FirebaseFields.GOOD_VARIANT_DESCRIPTION));
                 goodType.setGoodRetailPrice(snapshotDocs.getDouble(FirebaseFields.RETAIL_PRICE));
+                goodType.setGoodWholesalePrice(snapshotDocs.getDouble(FirebaseFields.WHOLESALE_PRICE));
+                goodType.setWholesaleQuantities(Math.toIntExact(snapshotDocs.getLong(FirebaseFields.WHOLESALE_QUANTITIES)));
                 good_types.add(goodType);
             }
             callback.onSuccess(good_types);
@@ -162,5 +165,41 @@ public class StoreHelper {
         map.put(FirebaseFields.WHOLESALE_PRICE,goodTypes.getGoodWholesalePrice());
         return map;
 
+    }
+
+    public static void updateRemainingStoreItems(GoodType goodType) {
+        FirebaseUser user= FirebaseInit.mAuth.getCurrentUser();
+        DocumentReference docRef =
+                FirebaseCollections.CUSTOMER_REFERENCE.document(user.getUid())
+                        .collection("store").document(goodType.getGoodTypeId());
+
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                // Document exists, retrieve the current value of numberInCart
+                int currentNumberInCart = Math.toIntExact(documentSnapshot.getLong(FirebaseFields.NUMBER));
+                // Increment the current value with the new value
+
+                int newValue=currentNumberInCart - goodType.getNumberInCart();
+
+                if (newValue<=0){
+                    docRef.delete();
+                }
+                else {
+                    goodType.setNumberInCart(newValue);
+                    FirebaseRepository.updateDocument(createItemInStore(goodType), docRef, new Callback() {
+                        @Override
+                        public void onSuccess(Object object) {
+                            Log.d(TAG, "Document update successful!");
+                        }
+
+                        @Override
+                        public void onError(Object object) {
+                            Log.w(TAG, "Error updating document");
+                        }
+                    });
+                }
+
+            }
+    });
     }
 }

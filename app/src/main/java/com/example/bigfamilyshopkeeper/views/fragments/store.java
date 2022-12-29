@@ -106,4 +106,11 @@ public class store extends Fragment {
         badgeView=view.findViewById(R.id.btnShowCart);
         badgeView.clearBadge();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        cart=new ArrayList<>();
+        badgeView.clearBadge();
+    }
 }

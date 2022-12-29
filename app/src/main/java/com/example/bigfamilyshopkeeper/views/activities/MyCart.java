@@ -1,10 +1,12 @@
 package com.example.bigfamilyshopkeeper.views.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,13 +44,39 @@ public class MyCart extends AppCompatActivity {
 
     private void payForCartGoods() {
         cartHelper=new CartHelper(cart);
-        /*Intent intent=new Intent(getApplicationContext(),SendGoodsActivity.class);
+        Intent intent=new Intent(getApplicationContext(),SendGoodsActivity.class);
         intent.putExtra("cart",cart);
 
         intent.putExtra("amount",String.valueOf(Math.round(cartHelper.getTotalCharge())));
         //may produce null pointer
         intent.putExtra("number", FirebaseInit.mAuth.getCurrentUser().getPhoneNumber());
-        startActivity(intent);*/
+        startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        // Create an alert dialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+// Set the message and title of the dialog
+        builder.setMessage("Going back will clear your cart. Are you sure you want to continue?")
+                .setTitle("Warning");
+
+// Set the positive and negative buttons of the dialog
+        builder.setPositiveButton("Yes", (dialog, id) -> {
+            // User confirmed that they want to go back and clear the cart
+            // Clear the cart and navigate back to the previous activity
+            super.onBackPressed();
+            finish();
+        });
+        builder.setNegativeButton("No", (dialog, id) -> {
+            // User cancelled, do nothing
+        });
+
+// Create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void setAdapter() {
